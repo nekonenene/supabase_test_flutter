@@ -4,6 +4,7 @@ import 'package:logger/logger.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'char_room_page.dart';
 import 'main_page.dart';
 
 final logger = Logger();
@@ -41,7 +42,11 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: const MainPage(title: 'Flutter Demo Home Page'),
+      home: const MainPage(title: 'ホーム'),
+      routes: <String, WidgetBuilder> {
+        '/main': (BuildContext context) => new MainPage(title: 'ホームaaa'),
+        '/chat_room': (BuildContext context) => new ChatRoomPage(title: 'チャットルーム'),
+      },
     );
   }
 }

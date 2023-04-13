@@ -4,8 +4,8 @@ import 'package:logger/logger.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'char_room_page.dart';
-import 'main_page.dart';
+import 'pages/char_room_page.dart';
+import 'pages/main_page.dart';
 
 final logger = Logger();
 
@@ -28,7 +28,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Supabase with Flutter',
       theme: ThemeData(
         // This is the theme of your application.
         //

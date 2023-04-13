@@ -150,25 +150,28 @@ class NewUserFormComponentState extends State<NewUserFormComponent> {
   Widget build(BuildContext context) {
     return Form(
       key: _formKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: Row(
         children: [
-          TextFormField(
-            decoration: const InputDecoration(
-            labelText: '新しい名前を入力',
+          Flexible(
+            child: TextFormField(
+              decoration: const InputDecoration(
+                labelText: '新しい名前を入力',
+
+              ),
+              onChanged: (value) {
+                name = value;
+              },
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return '文字を入力してください';
+                }
+                return null;
+              },
             ),
-            onChanged: (value) {
-              name = value;
-            },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return '文字を入力してください';
-              }
-              return null;
-            },
           ),
+          const Padding(padding: EdgeInsets.only(right: 14)),
           Align(
-            alignment: Alignment.topRight,
+            alignment: Alignment.centerRight,
             child: ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {

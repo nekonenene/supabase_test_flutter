@@ -1,16 +1,25 @@
 # supabase_test_flutter
 
-A new Flutter project.
+## Setup
 
-## Getting Started
+After clone this repository,
 
-This project is a starting point for a Flutter application.
+```sh
+cp .env.default .env
+```
 
-A few resources to get you started if this is your first Flutter project:
+Set `SUPABASE_KEY` in `.env`.  
+(See https://app.supabase.com/projects )
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+Then, install dependencies.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+```sh
+flutter pub get
+```
+
+
+## Run
+
+```sh
+flutter run
+```

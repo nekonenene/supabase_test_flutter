@@ -1,41 +1,19 @@
 import 'package:flutter/material.dart';
 
 import 'package:logger/logger.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final logger = Logger();
+final supabase = Supabase.instance.client;
 
 class MainPage extends StatefulWidget {
-  const MainPage({super.key, required this.title});
-
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
-  final String title;
+  const MainPage({super.key});
 
   @override
   State<MainPage> createState() => _MainPageState();
 }
 
 class _MainPageState extends State<MainPage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     // This method is rerun every time setState is called, for instance as done
@@ -48,43 +26,181 @@ class _MainPageState extends State<MainPage> {
       appBar: AppBar(
         // Here we take the value from the MainPage object that was created by
         // the App.build method, and use it to set our appbar title.
-        title: Text(widget.title),
+        title: const Text('ホーム'),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
+      body: Container(
+        padding: const EdgeInsets.all(20),
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+            Container(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                '名前を選んでね',
+                style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
+              ),
             ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headlineMedium,
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 20),
+                child: const UsersListComponent(),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.all(20),
+              child: const NewUserFormComponent(),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
+}
+
+class UsersListComponent extends StatefulWidget {
+  const UsersListComponent({super.key});
+
+  @override
+  UsersListComponentState createState() {
+    return UsersListComponentState();
+  }
+}
+
+class UsersListComponentState extends State<UsersListComponent> {
+  late List users;
+
+  @override
+  Widget build(BuildContext context) {
+    return
+      Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: Colors.black12),
+          borderRadius: BorderRadius.circular(8),
+        ),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            final newUsers = await fetchUsers();
+            setState(() {
+              users = newUsers;
+            });
+          },
+          child: FutureBuilder<List>(
+            future: fetchUsers(),
+            builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(child: Text('Connecting...'));
+              }
+              if (snapshot.hasError) {
+                return Center(child: Text(snapshot.error.toString()));
+              }
+              if (snapshot.hasData) {
+                users = snapshot.data!;
+
+                return Scrollbar(
+                  child: ListView.separated(
+                    shrinkWrap: true,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
+                    itemCount: users.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      final user = users[index];
+                      final name = user['name'];
+
+                      return SizedBox(
+                        height: 60,
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('$name', style: const TextStyle(fontWeight: FontWeight.bold)),
+                              const Padding(padding: EdgeInsets.only(top: 8)),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                    separatorBuilder: (BuildContext context, int index) => const Divider(),
+                  ),
+                );
+              }
+
+              return const Center(child: Text('Failed to fetch data...'));
+            }
+          ),
+        ),
+      );
+  }
+}
+
+class NewUserFormComponent extends StatefulWidget {
+  const NewUserFormComponent({super.key});
+
+  @override
+  NewUserFormComponentState createState() {
+    return NewUserFormComponentState();
+  }
+}
+
+class NewUserFormComponentState extends State<NewUserFormComponent> {
+  final _formKey = GlobalKey<FormState>();
+
+  String name = '';
+
+  @override
+  Widget build(BuildContext context) {
+    return Form(
+      key: _formKey,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          TextFormField(
+            decoration: const InputDecoration(
+            labelText: '新しい名前を入力',
+            ),
+            onChanged: (value) {
+              name = value;
+            },
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return '文字を入力してください';
+              }
+              return null;
+            },
+          ),
+          Align(
+            alignment: Alignment.topRight,
+            child: ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  saveNewUser(name).then((_) {
+                    _formKey.currentState!.reset();
+                    return ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Saved $name')),
+                    );
+                  }).onError((error, stackTrace) =>
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Failed $error')),
+                    ),
+                  );
+                }
+              },
+              child: const Text('追加'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Future<List> fetchUsers() async {
+  final users = await supabase.from('users').select('name');
+  logger.d(users);
+
+  return users;
+}
+
+Future saveNewUser(String name) async {
+  final user = await supabase.from('users').insert({ 'name': name });
+  logger.d(user);
 }

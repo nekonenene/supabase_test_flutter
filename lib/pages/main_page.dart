@@ -199,7 +199,7 @@ Future<List> fetchUsers() async {
   final users = await supabase.from('users').select('name');
   logger.d(users);
 
-  return users;
+  return users as List;
 }
 
 Future saveNewUser(String name) async {

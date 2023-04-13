@@ -71,64 +71,63 @@ class UsersListComponentState extends State<UsersListComponent> {
 
   @override
   Widget build(BuildContext context) {
-    return
-      Container(
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.black12),
-          borderRadius: BorderRadius.circular(8),
-        ),
-        child: RefreshIndicator(
-          onRefresh: () async {
-            final newUsers = await fetchUsers();
-            setState(() {
-              users = newUsers;
-            });
-          },
-          child: FutureBuilder<List>(
-            future: fetchUsers(),
-            builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
-              if (snapshot.connectionState == ConnectionState.waiting) {
-                return const Center(child: Text('Connecting...'));
-              }
-              if (snapshot.hasError) {
-                return Center(child: Text(snapshot.error.toString()));
-              }
-              if (snapshot.hasData) {
-                users = snapshot.data!;
-
-                return Scrollbar(
-                  child: ListView.separated(
-                    shrinkWrap: true,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
-                    itemCount: users.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      final user = users[index];
-                      final name = user['name'];
-
-                      return SizedBox(
-                        height: 60,
-                        child: Center(
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text('$name', style: const TextStyle(fontWeight: FontWeight.bold)),
-                              const Padding(padding: EdgeInsets.only(top: 8)),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                    separatorBuilder: (BuildContext context, int index) => const Divider(),
-                  ),
-                );
-              }
-
-              return const Center(child: Text('Failed to fetch data...'));
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(color: Colors.black12),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: RefreshIndicator(
+        onRefresh: () async {
+          final newUsers = await fetchUsers();
+          setState(() {
+            users = newUsers;
+          });
+        },
+        child: FutureBuilder<List>(
+          future: fetchUsers(),
+          builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: Text('Connecting...'));
             }
-          ),
+            if (snapshot.hasError) {
+              return Center(child: Text(snapshot.error.toString()));
+            }
+            if (snapshot.hasData) {
+              users = snapshot.data!;
+
+              return Scrollbar(
+                child: ListView.separated(
+                    shrinkWrap: true,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
+                  itemCount: users.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    final user = users[index];
+                    final name = user['name'];
+
+                    return SizedBox(
+                      height: 60,
+                      child: Center(
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text('$name', style: const TextStyle(fontWeight: FontWeight.bold)),
+                            const Padding(padding: EdgeInsets.only(top: 8)),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  separatorBuilder: (BuildContext context, int index) => const Divider(),
+                ),
+              );
+            }
+
+            return const Center(child: Text('Failed to fetch data...'));
+          }
         ),
-      );
+      ),
+    );
   }
 }
 

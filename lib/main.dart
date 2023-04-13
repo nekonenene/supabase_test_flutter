@@ -2,13 +2,19 @@ import 'package:flutter/material.dart';
 
 import 'package:logger/logger.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 final logger = Logger();
 
 void main() async {
   await dotenv.load(fileName: '.env');
   logger.d('START!!!');
-  logger.d('DOTENV_TEST: ${dotenv.env['DOTENV_TEST']}');
+
+  final supabaseUrl = 'https://ivytlevvpjbfagfaqoif.supabase.co';
+  final supabaseKey = dotenv.get('SUPABASE_KEY');
+
+  if (supabaseKey == '')
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey!);
 
   runApp(const MyApp());
 }

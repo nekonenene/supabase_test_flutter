@@ -13,11 +13,10 @@ void main() async {
   await dotenv.load(fileName: '.env');
   logger.d('START!!!');
 
-  final supabaseUrl = 'https://ivytlevvpjbfagfaqoif.supabase.co';
+  const supabaseUrl = 'https://ivytlevvpjbfagfaqoif.supabase.co';
   final supabaseKey = dotenv.get('SUPABASE_KEY');
 
-  if (supabaseKey == '')
-  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey!);
+  await Supabase.initialize(url: supabaseUrl, anonKey: supabaseKey);
 
   runApp(const MyApp());
 }
@@ -44,8 +43,8 @@ class MyApp extends StatelessWidget {
       ),
       home: const MainPage(title: 'ホーム'),
       routes: <String, WidgetBuilder> {
-        '/main': (BuildContext context) => new MainPage(title: 'ホームaaa'),
-        '/chat_room': (BuildContext context) => new ChatRoomPage(title: 'チャットルーム'),
+        '/main': (BuildContext context) => const MainPage(title: 'ホームaaa'),
+        '/chat_room': (BuildContext context) => const ChatRoomPage(title: 'チャットルーム'),
       },
     );
   }

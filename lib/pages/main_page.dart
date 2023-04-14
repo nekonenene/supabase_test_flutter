@@ -67,7 +67,7 @@ class UsersListComponent extends StatefulWidget {
 }
 
 class UsersListComponentState extends State<UsersListComponent> {
-  late List users;
+  late List<Map<String, dynamic>> users;
 
   @override
   Widget build(BuildContext context) {
@@ -83,9 +83,9 @@ class UsersListComponentState extends State<UsersListComponent> {
             users = newUsers;
           });
         },
-        child: FutureBuilder<List>(
+        child: FutureBuilder<List<Map<String, dynamic>>>(
           future: fetchUsers(),
-          builder: (BuildContext context, AsyncSnapshot<List> snapshot) {
+          builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
               return const Center(child: Text('Connecting...'));
             }
@@ -195,11 +195,11 @@ class NewUserFormComponentState extends State<NewUserFormComponent> {
   }
 }
 
-Future<List> fetchUsers() async {
-  final users = await supabase.from('users').select('name');
+Future<List<Map<String, dynamic>>> fetchUsers() async {
+  final users = await supabase.from('users').select<List<Map<String, dynamic>>>('name');
   logger.d(users);
 
-  return users as List;
+  return users;
 }
 
 Future saveNewUser(String name) async {

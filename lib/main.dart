@@ -41,10 +41,11 @@ class MyApp extends StatelessWidget {
         // is not restarted.
         primarySwatch: Colors.blue,
       ),
+      // home: const ChatRoomPage(userName: 'はなこ'),
       home: const MainPage(),
       routes: <String, WidgetBuilder> {
         '/main': (BuildContext context) => const MainPage(),
-        '/chat_room': (BuildContext context) => const ChatRoomPage(title: 'チャットルーム'),
+        '/chat_room': (BuildContext context) => const ChatRoomPage(userName: 'はなこ'),
       },
     );
   }

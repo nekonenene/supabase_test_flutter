@@ -177,11 +177,11 @@ class NewUserFormComponentState extends State<NewUserFormComponent> {
                   saveNewUser(name).then((_) {
                     _formKey.currentState!.reset();
                     return ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Saved $name')),
+                      SnackBar(content: Text('「$name」を追加しました')),
                     );
                   }).onError((error, stackTrace) =>
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Failed $error')),
+                      SnackBar(content: Text('追加失敗： $error')),
                     ),
                   );
                 }

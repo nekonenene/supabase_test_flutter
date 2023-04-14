@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'package:logger/logger.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_test_flutter/pages/char_room_page.dart';
 
 final logger = Logger();
 final supabase = Supabase.instance.client;
@@ -59,7 +60,7 @@ class UsersListComponent extends StatefulWidget {
 }
 
 class UsersListComponentState extends State<UsersListComponent> {
-  late List<Map<String, dynamic>> users;
+  late List<Map<String, dynamic>> _users;
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +71,9 @@ class UsersListComponentState extends State<UsersListComponent> {
       ),
       child: RefreshIndicator(
         onRefresh: () async {
-          final newUsers = await fetchUsers();
+          final users = await fetchUsers();
           setState(() {
-            users = newUsers;
+            _users = users;
           });
         },
         child: FutureBuilder<List<Map<String, dynamic>>>(
@@ -85,27 +86,35 @@ class UsersListComponentState extends State<UsersListComponent> {
               return Center(child: Text(snapshot.error.toString()));
             }
             if (snapshot.hasData) {
-              users = snapshot.data!;
+              _users = snapshot.data!;
 
               return Scrollbar(
                 child: ListView.separated(
-                    shrinkWrap: true,
+                  shrinkWrap: true,
                   physics: const AlwaysScrollableScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 16),
-                  itemCount: users.length,
+                  itemCount: _users.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final user = users[index];
-                    final name = user['name'];
+                    final user = _users[index];
+                    final userName = user['name'];
+                    final userId = user['id'];
 
                     return SizedBox(
                       height: 60,
-                      child: Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('$name', style: const TextStyle(fontWeight: FontWeight.bold)),
-                            const Padding(padding: EdgeInsets.only(top: 8)),
-                          ],
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) => ChatRoomPage(userName: userName))
+                          );
+                        },
+                        child: Center(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('$userName', style: const TextStyle(fontWeight: FontWeight.bold)),
+                            ],
+                          ),
                         ),
                       ),
                     );
@@ -135,7 +144,7 @@ class NewUserFormComponent extends StatefulWidget {
 class NewUserFormComponentState extends State<NewUserFormComponent> {
   final _formKey = GlobalKey<FormState>();
 
-  String name = '';
+  String _name = '';
 
   @override
   Widget build(BuildContext context) {
@@ -149,7 +158,7 @@ class NewUserFormComponentState extends State<NewUserFormComponent> {
                 labelText: '新しい名前を入力',
               ),
               onChanged: (value) {
-                name = value;
+                _name = value;
               },
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -165,10 +174,10 @@ class NewUserFormComponentState extends State<NewUserFormComponent> {
             child: ElevatedButton(
               onPressed: () {
                 if (_formKey.currentState!.validate()) {
-                  saveNewUser(name).then((_) {
+                  saveNewUser(_name).then((_) {
                     _formKey.currentState!.reset();
                     return ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('「$name」を追加しました')),
+                      SnackBar(content: Text('「$_name」を追加しました')),
                     );
                   }).onError((error, stackTrace) =>
                     ScaffoldMessenger.of(context).showSnackBar(
@@ -187,7 +196,7 @@ class NewUserFormComponentState extends State<NewUserFormComponent> {
 }
 
 Future<List<Map<String, dynamic>>> fetchUsers() async {
-  final users = await supabase.from('users').select<List<Map<String, dynamic>>>('name');
+  final users = await supabase.from('users').select<List<Map<String, dynamic>>>('id, name');
   logger.d(users);
 
   return users;
